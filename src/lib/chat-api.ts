@@ -13,6 +13,7 @@ export type ApiMessage = {
   room_id: string;
   nickname: string;
   body: string;
+  image_url: string | null;
   created_at: string;
 };
 
@@ -34,11 +35,12 @@ export async function sendMessage(
   roomId: string,
   nickname: string,
   body: string,
+  imageUrl?: string,
 ): Promise<ApiMessage> {
   const res = await fetch(`/api/v4/rooms/${encodeURIComponent(roomId)}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nickname, body }),
+    body: JSON.stringify({ nickname, body, image_url: imageUrl }),
   });
   if (!res.ok) throw new Error("failed to send message");
   const data = (await res.json()) as { message: ApiMessage };

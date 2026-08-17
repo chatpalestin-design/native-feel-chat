@@ -16,23 +16,26 @@ export type Database = {
     Tables: {
       messages: {
         Row: {
-          body: string
+          body: string | null
           created_at: string
           id: string
+          image_url: string | null
           nickname: string
           room_id: string
         }
         Insert: {
-          body: string
+          body?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           nickname: string
           room_id: string
         }
         Update: {
-          body?: string
+          body?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           nickname?: string
           room_id?: string
         }

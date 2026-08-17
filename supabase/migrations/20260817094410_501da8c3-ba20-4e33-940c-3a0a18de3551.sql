@@ -1,0 +1,2 @@
+CREATE POLICY "chat images public read" ON storage.objects FOR SELECT TO anon, authenticated USING (bucket_id = 'chat-images');
+CREATE POLICY "chat images upload" ON storage.objects FOR INSERT TO anon, authenticated WITH CHECK (bucket_id = 'chat-images');
