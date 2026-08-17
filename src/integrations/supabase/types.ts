@@ -14,7 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          nickname: string
+          room_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          nickname: string
+          room_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          nickname?: string
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          capacity: number
+          created_at: string
+          description: string
+          featured: boolean
+          id: string
+          kind: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          description?: string
+          featured?: boolean
+          id: string
+          kind?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          description?: string
+          featured?: boolean
+          id?: string
+          kind?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
