@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoomRoomIdRouteImport } from './routes/room/$roomId'
+import { Route as ApiV4RoomsRouteImport } from './routes/api/v4/rooms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const RoomRoomIdRoute = RoomRoomIdRouteImport.update({
   path: '/room/$roomId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV4RoomsRoute = ApiV4RoomsRouteImport.update({
+  id: '/api/v4/rooms',
+  path: '/api/v4/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/room/$roomId': typeof RoomRoomIdRoute
+  '/api/v4/rooms': typeof ApiV4RoomsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/room/$roomId': typeof RoomRoomIdRoute
+  '/api/v4/rooms': typeof ApiV4RoomsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/room/$roomId': typeof RoomRoomIdRoute
+  '/api/v4/rooms': typeof ApiV4RoomsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/room/$roomId'
+  fullPaths: '/' | '/room/$roomId' | '/api/v4/rooms'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/room/$roomId'
-  id: '__root__' | '/' | '/room/$roomId'
+  to: '/' | '/room/$roomId' | '/api/v4/rooms'
+  id: '__root__' | '/' | '/room/$roomId' | '/api/v4/rooms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RoomRoomIdRoute: typeof RoomRoomIdRoute
+  ApiV4RoomsRoute: typeof ApiV4RoomsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoomRoomIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v4/rooms': {
+      id: '/api/v4/rooms'
+      path: '/api/v4/rooms'
+      fullPath: '/api/v4/rooms'
+      preLoaderRoute: typeof ApiV4RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RoomRoomIdRoute: RoomRoomIdRoute,
+  ApiV4RoomsRoute: ApiV4RoomsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
