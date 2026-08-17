@@ -39,7 +39,7 @@ export const Route = createFileRoute("/room/$roomId")({
 });
 
 type Msg = {
-  id: number;
+  id: string;
   user: string;
   time: string;
   text: string;
@@ -48,31 +48,30 @@ type Msg = {
   quote?: { user: string; text: string };
 };
 
-const initialMessages: Msg[] = [
-  { id: 1, user: "خالد رام الله", time: "09:04 AM", text: "عليكم السلام", color: "red", badge: "star" },
-  { id: 2, user: "سامر نابلس", time: "09:04 AM", text: "يسعد صباحكم", color: "ink", badge: "star" },
-  {
-    id: 3,
-    user: "رمـــح #",
-    time: "09:04 AM",
-    text: "وانا مش بعبرك لله 🤷‍♀️",
-    color: "blue",
-    badge: "crown",
-    quote: { user: "#. MosTafaDoK", text: "انا يتسال عليا بس ي عرص 🤷‍♀️" },
-  },
-  { id: 4, user: "*صمود امرأه*", time: "09:04 AM", text: "عليكم السلام", color: "ink", badge: "crown" },
-  { id: 5, user: "ﷺ هَشة أَلمَزَاج ﷺ", time: "09:04 AM", text: "عليكم السلام نورت سامر", color: "pink" },
-  { id: 6, user: "خالد رام الله", time: "09:04 AM", text: "نورت سامرر 😊🌸", color: "red", badge: "star" },
-  {
-    id: 7,
-    user: "#. MosTafaDoK",
-    time: "09:04 AM",
-    text: "ياريتك ف ادبي 🤷‍♀️",
-    color: "ink",
-    badge: "verified",
-    quote: { user: "رمـــح #", text: "انت مش مؤدب اصلا بس تتصنع الادب" },
-  },
-];
+const colors = ["red", "blue", "pink", "ink"] as const;
+
+function pickColor(name: string): Msg["color"] {
+  let sum = 0;
+  for (let i = 0; i < name.length; i += 1) sum += name.charCodeAt(i);
+  return colors[sum % colors.length];
+}
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("ar-EG", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function toMsg(m: ApiMessage): Msg {
+  return {
+    id: m.id,
+    user: m.nickname,
+    time: formatTime(m.created_at),
+    text: m.body,
+    color: pickColor(m.nickname),
+  };
+}
 
 const colorClass: Record<Msg["color"], string> = {
   red: "text-msg-red",
@@ -95,19 +94,46 @@ function Badge({ kind }: { kind: NonNullable<Msg["badge"]> }) {
 function RoomPage() {
   const { roomId } = useParams({ from: "/room/$roomId" });
   const room = getRoom(roomId);
-  const [messages, setMessages] = useState<Msg[]>(initialMessages);
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [nickname, setNickname] = useState("زائر");
   const [text, setText] = useState("");
 
-  const send = (e: React.FormEvent) => {
+  useEffect(() => {
+    const saved = window.localStorage.getItem("chat-nickname");
+    if (saved) setNickname(saved);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const load = () =>
+      fetchMessages(roomId)
+        .then((rows) => {
+          if (active) setMessages(rows.map(toMsg));
+        })
+        .catch(() => undefined);
+
+    load();
+    const timer = window.setInterval(load, 4000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [roomId]);
+
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = text.trim();
     if (!value) return;
-    setMessages((m) => [
-      ...m,
-      { id: Date.now(), user: "أنت", time: "الآن", text: value, color: "ink" },
-    ]);
     setText("");
+    window.localStorage.setItem("chat-nickname", nickname);
+    try {
+      const created = await sendMessage(roomId, nickname, value);
+      setMessages((m) => [...m, toMsg(created)]);
+    } catch {
+      setText(value);
+    }
   };
+
 
   return (
     <div className="flex min-h-screen flex-col bg-chat-canvas">
