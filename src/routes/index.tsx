@@ -35,28 +35,33 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background pb-8">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-4 py-3">
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-3 py-2">
         <div className="flex items-center gap-2">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-[image:var(--gradient-brand)] text-lg font-black text-primary-foreground shadow-[var(--shadow-tile)]">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-[image:var(--gradient-brand)] text-base font-black text-primary-foreground">
             د
           </div>
-          <span className="text-xl font-extrabold text-foreground">دردشتي</span>
+          <span className="text-lg font-bold text-foreground">دردشتي</span>
         </div>
-        <span className="text-sm font-bold text-[oklch(0.55_0.16_250)]">مصمم</span>
+        <button
+          type="button"
+          className="rounded-md bg-brand-blue px-4 py-1.5 text-sm font-bold text-brand-blue-foreground"
+        >
+          دخول
+        </button>
       </header>
 
-      <div className="px-4 pt-4">
-        <div className="relative">
-          <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="px-3 pt-3">
+        <div className="relative max-w-xs">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="بحث عن غرف"
-            className="h-12 w-full rounded-full bg-secondary pr-10 pl-4 text-[15px] text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+            className="h-9 w-full rounded-md border border-border bg-card px-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
           />
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           {(
             [
               { key: "default", label: "الافتراضية" },
@@ -66,9 +71,9 @@ function Index() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`h-12 rounded-xl text-base font-bold transition-colors ${
+              className={`h-8 rounded-md text-[13px] font-bold transition-colors ${
                 tab === t.key
-                  ? "bg-[image:var(--gradient-tab)] text-primary-foreground shadow-[var(--shadow-card)]"
+                  ? "bg-[image:var(--gradient-tab)] text-primary-foreground"
                   : "border border-border bg-card text-foreground"
               }`}
             >
@@ -78,10 +83,12 @@ function Index() {
         </div>
       </div>
 
-      <main className="mt-4 space-y-3 px-4">
+      <main className="mt-3 grid grid-cols-1 gap-2 px-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <h1 className="sr-only">غرف دردشة عربية صوتية ونصية</h1>
         {list.length === 0 && (
-          <p className="py-10 text-center text-sm text-muted-foreground">لا توجد غرف مطابقة للبحث</p>
+          <p className="col-span-full py-10 text-center text-sm text-muted-foreground">
+            لا توجد غرف مطابقة للبحث
+          </p>
         )}
         {list.map((room) => (
           <RoomCard key={room.id} room={room} />
@@ -90,3 +97,4 @@ function Index() {
     </div>
   );
 }
+
