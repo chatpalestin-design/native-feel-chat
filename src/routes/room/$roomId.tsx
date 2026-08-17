@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowUp,
   Bell,
@@ -17,6 +17,15 @@ import {
 } from "lucide-react";
 import { getRoom } from "@/data/rooms";
 import { fetchMessages, sendMessage, type ApiMessage } from "@/lib/chat-api";
+import { supabase } from "@/integrations/supabase/client";
+
+const EMOJIS = [
+  "😀","😁","😂","🤣","😊","😍","😘","😎","🤩","🥳",
+  "😉","🙂","🤗","🤔","😐","😴","😢","😭","😡","🤯",
+  "👍","👎","👏","🙏","💪","✌️","🤝","👋","💯","🔥",
+  "❤️","💔","💖","🌹","🌸","⭐","✨","🎉","🎁","🎵",
+  "☕","🍰","🍕","⚽","🏆","🚗","✈️","🌙","☀️","🇵🇸",
+];
 
 export const Route = createFileRoute("/room/$roomId")({
   head: ({ params }) => {
@@ -45,6 +54,7 @@ type Msg = {
   time: string;
   text: string;
   color: "red" | "blue" | "pink" | "ink";
+  image?: string | null;
   badge?: "star" | "crown" | "verified";
   quote?: { user: string; text: string };
 };
@@ -70,6 +80,7 @@ function toMsg(m: ApiMessage): Msg {
     user: m.nickname,
     time: formatTime(m.created_at),
     text: m.body,
+    image: m.image_url,
     color: pickColor(m.nickname),
   };
 }
@@ -98,6 +109,9 @@ function RoomPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [nickname, setNickname] = useState("زائر");
   const [text, setText] = useState("");
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("chat-nickname");
@@ -121,17 +135,47 @@ function RoomPage() {
     };
   }, [roomId]);
 
+  const push = async (value: string, imageUrl?: string) => {
+    window.localStorage.setItem("chat-nickname", nickname);
+    const created = await sendMessage(roomId, nickname, value, imageUrl);
+    setMessages((m) => [...m, toMsg(created)]);
+  };
+
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = text.trim();
     if (!value) return;
     setText("");
-    window.localStorage.setItem("chat-nickname", nickname);
+    setShowEmoji(false);
     try {
-      const created = await sendMessage(roomId, nickname, value);
-      setMessages((m) => [...m, toMsg(created)]);
+      await push(value);
     } catch {
       setText(value);
+    }
+  };
+
+  const onPickImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("chat-images").upload(path, file, {
+        contentType: file.type || "image/jpeg",
+      });
+      if (error) throw error;
+      const { data } = await supabase.storage
+        .from("chat-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (!data?.signedUrl) throw new Error("no url");
+      await push(text.trim(), data.signedUrl);
+      setText("");
+    } catch {
+      /* ignore */
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -214,15 +258,48 @@ function RoomPage() {
                   <p className="text-[13px] text-muted-foreground">{m.quote.text}</p>
                 </div>
               )}
-              <p className={`mt-1 text-[19px] font-bold ${colorClass[m.color]}`}>{m.text}</p>
+              {m.image && (
+                <img
+                  src={m.image}
+                  alt={`صورة أرسلها ${m.user}`}
+                  loading="lazy"
+                  className="mt-1 max-h-60 w-full rounded-xl object-cover"
+                />
+              )}
+              {m.text && (
+                <p className={`mt-1 text-[19px] font-bold ${colorClass[m.color]}`}>{m.text}</p>
+              )}
             </div>
           </div>
         ))}
       </main>
 
+      {/* Emoji picker */}
+      {showEmoji && (
+        <div className="sticky bottom-[112px] z-10 max-h-44 overflow-y-auto border-t border-border bg-card px-2 py-2">
+          <div className="grid grid-cols-8 gap-1">
+            {EMOJIS.map((emo) => (
+              <button
+                key={emo}
+                type="button"
+                onClick={() => setText((t) => t + emo)}
+                className="rounded-lg py-1 text-2xl hover:bg-secondary"
+              >
+                {emo}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Composer */}
       <form onSubmit={send} className="sticky bottom-[58px] z-10 flex items-center gap-2 bg-card px-2 py-2">
-        <button type="button" aria-label="الرموز" className="text-brand-blue">
+        <button
+          type="button"
+          aria-label="الرموز"
+          onClick={() => setShowEmoji((v) => !v)}
+          className="text-brand-blue"
+        >
           <Smile className="size-8 fill-brand-blue text-card" />
         </button>
         <button type="button" aria-label="المزيد" className="text-brand-blue">
@@ -237,7 +314,20 @@ function RoomPage() {
         <button type="button" aria-label="تسجيل صوتي" className="text-brand-blue">
           <Mic className="size-6" />
         </button>
-        <button type="button" aria-label="كاميرا" className="text-brand-blue">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={onPickImage}
+          className="hidden"
+        />
+        <button
+          type="button"
+          aria-label="إرسال صورة"
+          disabled={uploading}
+          onClick={() => fileRef.current?.click()}
+          className="text-brand-blue disabled:opacity-50"
+        >
           <Camera className="size-6 fill-brand-blue text-card" />
         </button>
         <button
