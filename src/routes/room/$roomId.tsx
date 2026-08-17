@@ -111,13 +111,13 @@ function Badge({ kind }: { kind: NonNullable<Msg["badge"]> }) {
 }
 
 const USER_ACTIONS = [
-  { label: "رد على الرسالة", icon: Reply },
-  { label: "دردشة خاصة", icon: MessageSquareText },
-  { label: "أرسل هدية", icon: Gift },
-  { label: "ترقية هذا المستخدم", icon: BarChart3 },
-  { label: "حظر هذا المستخدم", icon: AlertCircle },
-  { label: "الإبلاغ عن المستخدم", icon: AlertTriangle },
-  { label: "عرض الملف الشخصي", icon: UserCircle2 },
+  { label: "رد على الرسالة", icon: Reply, solid: true },
+  { label: "دردشة خاصة", icon: MessageSquareText, solid: true },
+  { label: "أرسل هدية", icon: Gift, solid: false },
+  { label: "ترقية هذا المستخدم", icon: BarChart3, solid: false },
+  { label: "حظر هذا المستخدم", icon: AlertCircle, solid: false },
+  { label: "الإبلاغ عن المستخدم", icon: AlertTriangle, solid: false },
+  { label: "عرض الملف الشخصي", icon: UserCircle2, solid: false },
 ] as const;
 
 function RoomPage() {
@@ -381,14 +381,17 @@ function RoomPage() {
             <p className="py-4 text-center text-[19px] font-extrabold text-foreground">
               {sheetUser}
             </p>
-            {USER_ACTIONS.map(({ label, icon: Icon }) => (
+            {USER_ACTIONS.map(({ label, icon: Icon, solid }) => (
               <button
                 key={label}
                 type="button"
                 onClick={() => setSheetUser(null)}
                 className="flex w-full items-center gap-4 border-t border-border px-5 py-3.5 text-right"
               >
-                <Icon className="size-7 shrink-0 fill-brand-blue text-brand-blue" strokeWidth={2} />
+                <Icon
+                  className={`size-7 shrink-0 text-brand-blue ${solid ? "fill-brand-blue" : ""}`}
+                  strokeWidth={2.4}
+                />
                 <span className="text-[19px] font-extrabold text-brand-blue">{label}</span>
               </button>
             ))}
