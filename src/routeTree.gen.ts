@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoomRoomIdRouteImport } from './routes/room/$roomId'
 import { Route as ApiV4RoomsRouteImport } from './routes/api/v4/rooms'
+import { Route as ApiV4RoomsRoomIdMessagesRouteImport } from './routes/api/v4/rooms.$roomId.messages'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,50 @@ const ApiV4RoomsRoute = ApiV4RoomsRouteImport.update({
   path: '/api/v4/rooms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV4RoomsRoomIdMessagesRoute =
+  ApiV4RoomsRoomIdMessagesRouteImport.update({
+    id: '/$roomId/messages',
+    path: '/$roomId/messages',
+    getParentRoute: () => ApiV4RoomsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/room/$roomId': typeof RoomRoomIdRoute
-  '/api/v4/rooms': typeof ApiV4RoomsRoute
+  '/api/v4/rooms': typeof ApiV4RoomsRouteWithChildren
+  '/api/v4/rooms/$roomId/messages': typeof ApiV4RoomsRoomIdMessagesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/room/$roomId': typeof RoomRoomIdRoute
-  '/api/v4/rooms': typeof ApiV4RoomsRoute
+  '/api/v4/rooms': typeof ApiV4RoomsRouteWithChildren
+  '/api/v4/rooms/$roomId/messages': typeof ApiV4RoomsRoomIdMessagesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/room/$roomId': typeof RoomRoomIdRoute
-  '/api/v4/rooms': typeof ApiV4RoomsRoute
+  '/api/v4/rooms': typeof ApiV4RoomsRouteWithChildren
+  '/api/v4/rooms/$roomId/messages': typeof ApiV4RoomsRoomIdMessagesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/room/$roomId' | '/api/v4/rooms'
+  fullPaths:
+    '/' | '/room/$roomId' | '/api/v4/rooms' | '/api/v4/rooms/$roomId/messages'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/room/$roomId' | '/api/v4/rooms'
-  id: '__root__' | '/' | '/room/$roomId' | '/api/v4/rooms'
+  to: '/' | '/room/$roomId' | '/api/v4/rooms' | '/api/v4/rooms/$roomId/messages'
+  id:
+    | '__root__'
+    | '/'
+    | '/room/$roomId'
+    | '/api/v4/rooms'
+    | '/api/v4/rooms/$roomId/messages'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RoomRoomIdRoute: typeof RoomRoomIdRoute
-  ApiV4RoomsRoute: typeof ApiV4RoomsRoute
+  ApiV4RoomsRoute: typeof ApiV4RoomsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +98,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV4RoomsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v4/rooms/$roomId/messages': {
+      id: '/api/v4/rooms/$roomId/messages'
+      path: '/$roomId/messages'
+      fullPath: '/api/v4/rooms/$roomId/messages'
+      preLoaderRoute: typeof ApiV4RoomsRoomIdMessagesRouteImport
+      parentRoute: typeof ApiV4RoomsRoute
+    }
   }
 }
+
+interface ApiV4RoomsRouteChildren {
+  ApiV4RoomsRoomIdMessagesRoute: typeof ApiV4RoomsRoomIdMessagesRoute
+}
+
+const ApiV4RoomsRouteChildren: ApiV4RoomsRouteChildren = {
+  ApiV4RoomsRoomIdMessagesRoute: ApiV4RoomsRoomIdMessagesRoute,
+}
+
+const ApiV4RoomsRouteWithChildren = ApiV4RoomsRoute._addFileChildren(
+  ApiV4RoomsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RoomRoomIdRoute: RoomRoomIdRoute,
-  ApiV4RoomsRoute: ApiV4RoomsRoute,
+  ApiV4RoomsRoute: ApiV4RoomsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
