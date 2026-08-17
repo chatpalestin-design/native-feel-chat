@@ -9,7 +9,14 @@ import {
   LayoutGrid,
   MessageSquare,
   Mic,
+  MessageSquareText,
   MoreVertical,
+  BarChart3,
+  AlertCircle,
+  AlertTriangle,
+  Gift,
+  Reply,
+  UserCircle2,
   Play,
   Radio,
   Smile,
@@ -103,6 +110,16 @@ function Badge({ kind }: { kind: NonNullable<Msg["badge"]> }) {
   return <span className="text-[13px] leading-none text-brand-blue">★</span>;
 }
 
+const USER_ACTIONS = [
+  { label: "رد على الرسالة", icon: Reply, solid: true },
+  { label: "دردشة خاصة", icon: MessageSquareText, solid: true },
+  { label: "أرسل هدية", icon: Gift, solid: false },
+  { label: "ترقية هذا المستخدم", icon: BarChart3, solid: false },
+  { label: "حظر هذا المستخدم", icon: AlertCircle, solid: false },
+  { label: "الإبلاغ عن المستخدم", icon: AlertTriangle, solid: false },
+  { label: "عرض الملف الشخصي", icon: UserCircle2, solid: false },
+] as const;
+
 function RoomPage() {
   const { roomId } = useParams({ from: "/room/$roomId" });
   const room = getRoom(roomId);
@@ -112,6 +129,7 @@ function RoomPage() {
   const [showEmoji, setShowEmoji] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [sheetUser, setSheetUser] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("chat-nickname");
@@ -245,10 +263,21 @@ function RoomPage() {
       <main className="flex-1 space-y-2 px-2 py-3">
         {messages.map((m) => (
           <div key={m.id} className="flex items-end gap-2">
-            <div className="size-11 shrink-0 overflow-hidden rounded-full bg-[image:var(--gradient-brand)]" />
+            <button
+              type="button"
+              onClick={() => setSheetUser(m.user)}
+              aria-label={`خيارات ${m.user}`}
+              className="size-11 shrink-0 overflow-hidden rounded-full bg-[image:var(--gradient-brand)]"
+            />
             <div className="max-w-[78%] rounded-2xl bg-bubble px-3 py-2 shadow-[var(--shadow-card)]">
               <div className="flex items-center gap-2">
-                <span className="truncate text-[15px] font-extrabold text-bubble-foreground">{m.user}</span>
+                <button
+                  type="button"
+                  onClick={() => setSheetUser(m.user)}
+                  className="truncate text-[15px] font-extrabold text-bubble-foreground"
+                >
+                  {m.user}
+                </button>
                 {m.badge && <Badge kind={m.badge} />}
                 <span className="text-[11px] text-muted-foreground">{m.time}</span>
               </div>
@@ -338,6 +367,44 @@ function RoomPage() {
           <ArrowUp className="size-5" strokeWidth={3} />
         </button>
       </form>
+
+      {/* User action sheet */}
+      {sheetUser && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-foreground/40"
+          onClick={() => setSheetUser(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mx-2 mb-2 w-[calc(100%-1rem)] overflow-hidden rounded-2xl bg-card"
+          >
+            <p className="py-4 text-center text-[19px] font-extrabold text-foreground">
+              {sheetUser}
+            </p>
+            {USER_ACTIONS.map(({ label, icon: Icon, solid }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setSheetUser(null)}
+                className="flex w-full items-center gap-4 border-t border-border px-5 py-3.5 text-right"
+              >
+                <Icon
+                  className={`size-7 shrink-0 text-brand-blue ${solid ? "fill-brand-blue" : ""}`}
+                  strokeWidth={2.4}
+                />
+                <span className="text-[19px] font-extrabold text-brand-blue">{label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setSheetUser(null)}
+              className="w-full border-t border-border py-3.5 text-center text-[19px] font-extrabold text-destructive"
+            >
+              الغاء
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Bottom tabs */}
       <nav className="sticky bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5">
