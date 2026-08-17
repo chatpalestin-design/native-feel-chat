@@ -9,31 +9,32 @@ export function RoomCard({ room }: { room: Room }) {
     <Link
       to="/room/$roomId"
       params={{ roomId: room.id }}
-      className="flex items-stretch gap-3 rounded-2xl bg-card p-3 shadow-[var(--shadow-card)] transition-transform active:scale-[0.98]"
+      className="relative flex items-center gap-3 rounded-lg border border-border bg-card p-2.5 shadow-[var(--shadow-card)] transition-colors hover:bg-secondary/60"
     >
-      <div className="relative h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl bg-[image:var(--gradient-brand)] shadow-[var(--shadow-tile)]">
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-[image:var(--gradient-brand)]">
         <span className="absolute inset-0 flex items-center justify-center px-1 text-center text-[15px] font-extrabold leading-tight text-primary-foreground">
           {room.name}
         </span>
       </div>
 
-      <div className="min-w-0 flex-1">
-        <h3 className="truncate text-lg font-extrabold text-foreground">{room.name}</h3>
-        <p className="truncate text-sm text-muted-foreground">{room.desc}</p>
+      <div className="min-w-0 flex-1 pb-4">
+        <h3 className="truncate text-[17px] font-bold text-foreground">{room.name}</h3>
+        <p className="truncate text-[13px] text-muted-foreground">{room.desc}</p>
       </div>
 
-      <div className="flex flex-col items-end justify-between">
+      <div className="flex shrink-0 flex-col items-end gap-1">
         <span
-          className={`flex items-center gap-1 text-sm font-semibold ${full ? "text-destructive" : "text-foreground"}`}
+          className={`flex items-center gap-1 text-[13px] ${full ? "text-destructive" : "text-foreground"}`}
         >
-          <Users className="size-4" />
           {room.users}/{room.capacity}
+          <Users className="size-4 text-muted-foreground" />
         </span>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          {room.kind === "voice" && <Video className="size-5" />}
-          <MessageSquare className="size-5" />
-          <ChevronLeft className="size-5 text-foreground" />
-        </div>
+        <ChevronLeft className="size-5 text-muted-foreground" />
+      </div>
+
+      <div className="absolute bottom-1.5 left-9 flex items-center gap-1.5 text-muted-foreground">
+        <MessageSquare className="size-[18px] fill-current" />
+        {room.kind === "voice" && <Video className="size-[18px] fill-current" />}
       </div>
     </Link>
   );
