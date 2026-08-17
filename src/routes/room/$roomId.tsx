@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUp,
   Bell,
@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { getRoom } from "@/data/rooms";
+import { fetchMessages, sendMessage, type ApiMessage } from "@/lib/chat-api";
 
 export const Route = createFileRoute("/room/$roomId")({
   head: ({ params }) => {
@@ -53,7 +54,7 @@ const colors = ["red", "blue", "pink", "ink"] as const;
 function pickColor(name: string): Msg["color"] {
   let sum = 0;
   for (let i = 0; i < name.length; i += 1) sum += name.charCodeAt(i);
-  return colors[sum % colors.length];
+  return colors[sum % colors.length] as Msg["color"];
 }
 
 function formatTime(iso: string) {
