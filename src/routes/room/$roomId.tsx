@@ -422,6 +422,45 @@ function RoomPage() {
         </div>
       )}
 
+      {/* Main menu sheet */}
+      {showMenu && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-foreground/40"
+          onClick={() => setShowMenu(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mx-2 mb-2 w-[calc(100%-1rem)] overflow-hidden rounded-2xl bg-card"
+          >
+            <p className="py-4 text-center text-[19px] font-extrabold text-foreground">
+              القائمة
+            </p>
+            {MENU_ACTIONS.map(({ label, icon: Icon, solid }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setShowMenu(false)}
+                className="flex w-full items-center gap-4 border-t border-border px-5 py-3.5 text-right"
+              >
+                <Icon
+                  className={`size-7 shrink-0 text-brand-blue ${solid ? "fill-brand-blue" : ""}`}
+                  strokeWidth={2.4}
+                />
+                <span className="text-[19px] font-extrabold text-brand-blue">{label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowMenu(false)}
+              className="w-full border-t border-border py-3.5 text-center text-[19px] font-extrabold text-destructive"
+            >
+              الغاء
+            </button>
+          </div>
+        </div>
+      )}
+
+
       {/* Bottom tabs */}
       <nav className="sticky bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5">
         <Link to="/" className="flex flex-col items-center gap-0.5 text-brand-blue">
