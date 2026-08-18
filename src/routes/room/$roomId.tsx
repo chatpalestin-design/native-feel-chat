@@ -478,7 +478,11 @@ function RoomPage() {
           <Bell className="size-6" />
           <span className="text-[12px] font-bold">الإشعارات</span>
         </button>
-        <button type="button" className="flex flex-col items-center gap-0.5 text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setShowMenu(true)}
+          className="flex flex-col items-center gap-0.5 text-muted-foreground"
+        >
           <span className="flex size-6 items-center justify-center rounded-md bg-[image:var(--gradient-brand)] text-[11px] font-black text-primary-foreground">
             د
           </span>
