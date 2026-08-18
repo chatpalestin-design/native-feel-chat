@@ -19,6 +19,9 @@ import {
   UserCircle2,
   Play,
   Radio,
+  Settings,
+  HelpCircle,
+  LogOut,
   Smile,
   Users,
 } from "lucide-react";
@@ -120,6 +123,17 @@ const USER_ACTIONS = [
   { label: "عرض الملف الشخصي", icon: UserCircle2, solid: false },
 ] as const;
 
+const MENU_ACTIONS = [
+  { label: "ملفي الشخصي", icon: UserCircle2, solid: false },
+  { label: "الأصدقاء", icon: Users, solid: true },
+  { label: "الهدايا والمتجر", icon: Gift, solid: false },
+  { label: "الإشعارات", icon: Bell, solid: true },
+  { label: "الإعدادات", icon: Settings, solid: false },
+  { label: "المساعدة والدعم", icon: HelpCircle, solid: false },
+  { label: "تسجيل الخروج", icon: LogOut, solid: false },
+] as const;
+
+
 function RoomPage() {
   const { roomId } = useParams({ from: "/room/$roomId" });
   const room = getRoom(roomId);
@@ -130,6 +144,8 @@ function RoomPage() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [sheetUser, setSheetUser] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+
 
   useEffect(() => {
     const saved = window.localStorage.getItem("chat-nickname");
@@ -406,6 +422,45 @@ function RoomPage() {
         </div>
       )}
 
+      {/* Main menu sheet */}
+      {showMenu && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-foreground/40"
+          onClick={() => setShowMenu(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mx-2 mb-2 w-[calc(100%-1rem)] overflow-hidden rounded-2xl bg-card"
+          >
+            <p className="py-4 text-center text-[19px] font-extrabold text-foreground">
+              القائمة
+            </p>
+            {MENU_ACTIONS.map(({ label, icon: Icon, solid }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setShowMenu(false)}
+                className="flex w-full items-center gap-4 border-t border-border px-5 py-3.5 text-right"
+              >
+                <Icon
+                  className={`size-7 shrink-0 text-brand-blue ${solid ? "fill-brand-blue" : ""}`}
+                  strokeWidth={2.4}
+                />
+                <span className="text-[19px] font-extrabold text-brand-blue">{label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowMenu(false)}
+              className="w-full border-t border-border py-3.5 text-center text-[19px] font-extrabold text-destructive"
+            >
+              الغاء
+            </button>
+          </div>
+        </div>
+      )}
+
+
       {/* Bottom tabs */}
       <nav className="sticky bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5">
         <Link to="/" className="flex flex-col items-center gap-0.5 text-brand-blue">
@@ -423,7 +478,11 @@ function RoomPage() {
           <Bell className="size-6" />
           <span className="text-[12px] font-bold">الإشعارات</span>
         </button>
-        <button type="button" className="flex flex-col items-center gap-0.5 text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setShowMenu(true)}
+          className="flex flex-col items-center gap-0.5 text-muted-foreground"
+        >
           <span className="flex size-6 items-center justify-center rounded-md bg-[image:var(--gradient-brand)] text-[11px] font-black text-primary-foreground">
             د
           </span>
