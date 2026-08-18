@@ -19,6 +19,9 @@ import {
   UserCircle2,
   Play,
   Radio,
+  Settings,
+  HelpCircle,
+  LogOut,
   Smile,
   Users,
 } from "lucide-react";
