@@ -120,6 +120,17 @@ const USER_ACTIONS = [
   { label: "عرض الملف الشخصي", icon: UserCircle2, solid: false },
 ] as const;
 
+const MENU_ACTIONS = [
+  { label: "ملفي الشخصي", icon: UserCircle2, solid: false },
+  { label: "الأصدقاء", icon: Users, solid: true },
+  { label: "الهدايا والمتجر", icon: Gift, solid: false },
+  { label: "الإشعارات", icon: Bell, solid: true },
+  { label: "الإعدادات", icon: Settings, solid: false },
+  { label: "المساعدة والدعم", icon: HelpCircle, solid: false },
+  { label: "تسجيل الخروج", icon: LogOut, solid: false },
+] as const;
+
+
 function RoomPage() {
   const { roomId } = useParams({ from: "/room/$roomId" });
   const room = getRoom(roomId);
