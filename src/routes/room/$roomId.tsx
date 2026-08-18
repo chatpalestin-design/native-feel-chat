@@ -144,6 +144,8 @@ function RoomPage() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [sheetUser, setSheetUser] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+
 
   useEffect(() => {
     const saved = window.localStorage.getItem("chat-nickname");
