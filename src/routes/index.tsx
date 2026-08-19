@@ -136,7 +136,45 @@ function Index() {
       </main>
       </div>
 
-      <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
+      {menuOpen && (
+        <div className="fixed inset-0 z-40">
+          <button
+            type="button"
+            aria-label="إغلاق"
+            onClick={() => setMenuOpen(false)}
+            className="absolute inset-x-0 bottom-0 top-[52px] bg-black/25"
+          />
+          <div className="absolute right-3 top-[58px] w-[64%] max-w-sm overflow-hidden rounded-2xl bg-card shadow-xl">
+            <span className="absolute -top-2 right-8 size-4 rotate-45 rounded-sm bg-card" />
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                toast("هذه الميزة قريباً");
+              }}
+              className="relative flex w-full items-center justify-between px-5 py-4 text-right text-[19px] font-bold text-foreground"
+            >
+              إنشاء حساب
+              <ChevronLeft className="size-6 text-muted-foreground" />
+            </button>
+            <div className="mx-5 h-px bg-border" />
+            <button
+              type="button"
+              onClick={logout}
+              className="relative flex w-full items-center justify-between px-5 py-4 text-right text-[19px] font-bold text-foreground"
+            >
+              الخروج
+              <ChevronLeft className="size-6 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <LoginSheet
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onLoggedIn={(name) => setUser(name)}
+      />
     </div>
   );
 }
