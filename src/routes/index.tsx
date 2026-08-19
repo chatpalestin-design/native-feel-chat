@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, Search } from "lucide-react";
+import { toast } from "sonner";
 import { rooms } from "@/data/rooms";
 import { RoomCard } from "@/components/RoomCard";
 import { LoginSheet } from "@/components/LoginSheet";
@@ -30,6 +31,20 @@ function Index() {
   const [tab, setTab] = useState<"default" | "voice">("voice");
   const [query, setQuery] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
+  const [user, setUser] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setUser(window.localStorage.getItem("chat-nickname"));
+  }, []);
+
+  const logout = () => {
+    window.localStorage.removeItem("chat-nickname");
+    window.localStorage.removeItem("chat-gender");
+    setUser(null);
+    setMenuOpen(false);
+    toast("تم تسجيل الخروج");
+  };
 
   const list = useMemo(
     () => rooms.filter((r) => r.kind === tab && r.name.includes(query.trim())),
@@ -50,13 +65,28 @@ function Index() {
           </div>
           <span className="text-lg font-bold text-foreground">دردشتي</span>
         </div>
-        <button
-          type="button"
-          onClick={() => setLoginOpen(true)}
-          className="rounded-md bg-brand-blue px-4 py-1.5 text-sm font-bold text-brand-blue-foreground"
-        >
-          دخول
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1"
+          >
+            <span className="max-w-[110px] truncate text-[15px] font-bold text-login-blue">
+              {user}
+            </span>
+            <span className="flex size-8 items-center justify-center rounded-lg bg-[image:var(--gradient-brand)] text-sm font-black text-primary-foreground">
+              {user.slice(0, 1)}
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setLoginOpen(true)}
+            className="rounded-md bg-brand-blue px-4 py-1.5 text-sm font-bold text-brand-blue-foreground"
+          >
+            دخول
+          </button>
+        )}
       </header>
 
 
@@ -106,7 +136,45 @@ function Index() {
       </main>
       </div>
 
-      <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
+      {menuOpen && (
+        <div className="fixed inset-0 z-40">
+          <button
+            type="button"
+            aria-label="إغلاق"
+            onClick={() => setMenuOpen(false)}
+            className="absolute inset-x-0 bottom-0 top-[52px] bg-black/25"
+          />
+          <div className="absolute right-3 top-[58px] w-[64%] max-w-sm overflow-hidden rounded-2xl bg-card shadow-xl">
+            <span className="absolute -top-2 right-8 size-4 rotate-45 rounded-sm bg-card" />
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                toast("هذه الميزة قريباً");
+              }}
+              className="relative flex w-full items-center justify-between px-5 py-4 text-right text-[19px] font-bold text-foreground"
+            >
+              إنشاء حساب
+              <ChevronLeft className="size-6 text-muted-foreground" />
+            </button>
+            <div className="mx-5 h-px bg-border" />
+            <button
+              type="button"
+              onClick={logout}
+              className="relative flex w-full items-center justify-between px-5 py-4 text-right text-[19px] font-bold text-foreground"
+            >
+              الخروج
+              <ChevronLeft className="size-6 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <LoginSheet
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onLoggedIn={(name) => setUser(name)}
+      />
     </div>
   );
 }
