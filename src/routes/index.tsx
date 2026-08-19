@@ -29,15 +29,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"default" | "voice">("voice");
   const [query, setQuery] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
   const [user, setUser] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingRoom, setPendingRoom] = useState<string | null>(null);
 
   useEffect(() => {
     setUser(window.localStorage.getItem("chat-nickname"));
   }, []);
+
 
   const logout = () => {
     window.localStorage.removeItem("chat-nickname");
