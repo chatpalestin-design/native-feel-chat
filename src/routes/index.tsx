@@ -185,9 +185,20 @@ function Index() {
 
       <LoginSheet
         open={loginOpen}
-        onClose={() => setLoginOpen(false)}
-        onLoggedIn={(name) => setUser(name)}
+        onClose={() => {
+          setLoginOpen(false);
+          setPendingRoom(null);
+        }}
+        onLoggedIn={(name) => {
+          setUser(name);
+          if (pendingRoom) {
+            const roomId = pendingRoom;
+            setPendingRoom(null);
+            navigate({ to: "/room/$roomId", params: { roomId } });
+          }
+        }}
       />
+
     </div>
   );
 }
