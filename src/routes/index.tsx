@@ -31,6 +31,20 @@ function Index() {
   const [tab, setTab] = useState<"default" | "voice">("voice");
   const [query, setQuery] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
+  const [user, setUser] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setUser(window.localStorage.getItem("chat-nickname"));
+  }, []);
+
+  const logout = () => {
+    window.localStorage.removeItem("chat-nickname");
+    window.localStorage.removeItem("chat-gender");
+    setUser(null);
+    setMenuOpen(false);
+    toast("تم تسجيل الخروج");
+  };
 
   const list = useMemo(
     () => rooms.filter((r) => r.kind === tab && r.name.includes(query.trim())),
