@@ -135,8 +135,17 @@ function Index() {
           </p>
         )}
         {list.map((room) => (
-          <RoomCard key={room.id} room={room} />
+          <RoomCard
+            key={room.id}
+            room={room}
+            locked={!user}
+            onLocked={(roomId) => {
+              setPendingRoom(roomId);
+              setLoginOpen(true);
+            }}
+          />
         ))}
+
       </main>
       </div>
 
