@@ -40,6 +40,7 @@ export function LoginSheet({
     window.localStorage.setItem("chat-nickname", name);
     window.localStorage.setItem("chat-gender", gender);
     toast.success(`أهلاً ${name}`);
+    onLoggedIn?.(name);
     onClose();
   };
 
