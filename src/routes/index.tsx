@@ -65,13 +65,28 @@ function Index() {
           </div>
           <span className="text-lg font-bold text-foreground">دردشتي</span>
         </div>
-        <button
-          type="button"
-          onClick={() => setLoginOpen(true)}
-          className="rounded-md bg-brand-blue px-4 py-1.5 text-sm font-bold text-brand-blue-foreground"
-        >
-          دخول
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1"
+          >
+            <span className="max-w-[110px] truncate text-[15px] font-bold text-login-blue">
+              {user}
+            </span>
+            <span className="flex size-8 items-center justify-center rounded-lg bg-[image:var(--gradient-brand)] text-sm font-black text-primary-foreground">
+              {user.slice(0, 1)}
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setLoginOpen(true)}
+            className="rounded-md bg-brand-blue px-4 py-1.5 text-sm font-bold text-brand-blue-foreground"
+          >
+            دخول
+          </button>
+        )}
       </header>
 
 
