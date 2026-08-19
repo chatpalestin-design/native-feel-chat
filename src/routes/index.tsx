@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { rooms } from "@/data/rooms";
 import { RoomCard } from "@/components/RoomCard";
+import { LoginSheet } from "@/components/LoginSheet";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -102,7 +104,11 @@ function Index() {
           <RoomCard key={room.id} room={room} />
         ))}
       </main>
+      </div>
+
+      <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }
+
 
