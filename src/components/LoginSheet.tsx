@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { Lock, User } from "lucide-react";
 import { toast } from "sonner";
 
-export function LoginSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function LoginSheet({
+  open,
+  onClose,
+  onLoggedIn,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onLoggedIn?: (name: string) => void;
+}) {
   const [mounted, setMounted] = useState(false);
   const [shown, setShown] = useState(false);
   const [guest, setGuest] = useState(true);
