@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { rooms } from "@/data/rooms";
 import { RoomCard } from "@/components/RoomCard";
+import { LoginSheet } from "@/components/LoginSheet";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [tab, setTab] = useState<"default" | "voice">("voice");
   const [query, setQuery] = useState("");
+  const [loginOpen, setLoginOpen] = useState(false);
 
   const list = useMemo(
     () => rooms.filter((r) => r.kind === tab && r.name.includes(query.trim())),
@@ -34,7 +37,12 @@ function Index() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className={loginOpen ? "min-h-screen bg-black" : "min-h-screen bg-background"}>
+      <div
+        className={`min-h-screen origin-top bg-background pb-8 transition-transform duration-300 ease-out ${
+          loginOpen ? "scale-[0.94] overflow-hidden rounded-xl" : "scale-100"
+        }`}
+      >
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-3 py-2">
         <div className="flex items-center gap-2">
           <div className="flex size-9 items-center justify-center rounded-lg bg-[image:var(--gradient-brand)] text-base font-black text-primary-foreground">
@@ -44,11 +52,13 @@ function Index() {
         </div>
         <button
           type="button"
+          onClick={() => setLoginOpen(true)}
           className="rounded-md bg-brand-blue px-4 py-1.5 text-sm font-bold text-brand-blue-foreground"
         >
           دخول
         </button>
       </header>
+
 
       <div className="px-3 pt-3">
         <div className="relative max-w-xs">
@@ -94,7 +104,11 @@ function Index() {
           <RoomCard key={room.id} room={room} />
         ))}
       </main>
+      </div>
+
+      <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }
+
 
