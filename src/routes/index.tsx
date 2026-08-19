@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, Search } from "lucide-react";
 import { toast } from "sonner";
 import { rooms } from "@/data/rooms";
 import { RoomCard } from "@/components/RoomCard";
 import { LoginSheet } from "@/components/LoginSheet";
+
 
 
 export const Route = createFileRoute("/")({
@@ -28,15 +29,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"default" | "voice">("voice");
   const [query, setQuery] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
   const [user, setUser] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingRoom, setPendingRoom] = useState<string | null>(null);
 
   useEffect(() => {
     setUser(window.localStorage.getItem("chat-nickname"));
   }, []);
+
 
   const logout = () => {
     window.localStorage.removeItem("chat-nickname");
@@ -131,8 +135,17 @@ function Index() {
           </p>
         )}
         {list.map((room) => (
-          <RoomCard key={room.id} room={room} />
+          <RoomCard
+            key={room.id}
+            room={room}
+            locked={!user}
+            onLocked={(roomId) => {
+              setPendingRoom(roomId);
+              setLoginOpen(true);
+            }}
+          />
         ))}
+
       </main>
       </div>
 
@@ -172,9 +185,20 @@ function Index() {
 
       <LoginSheet
         open={loginOpen}
-        onClose={() => setLoginOpen(false)}
-        onLoggedIn={(name) => setUser(name)}
+        onClose={() => {
+          setLoginOpen(false);
+          setPendingRoom(null);
+        }}
+        onLoggedIn={(name) => {
+          setUser(name);
+          if (pendingRoom) {
+            const roomId = pendingRoom;
+            setPendingRoom(null);
+            navigate({ to: "/room/$roomId", params: { roomId } });
+          }
+        }}
       />
+
     </div>
   );
 }
