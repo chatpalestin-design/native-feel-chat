@@ -24,6 +24,10 @@ import {
   LogOut,
   Smile,
   Users,
+  Video,
+  ListFilter,
+  Pause,
+  Volume2,
 } from "lucide-react";
 import { getRoom } from "@/data/rooms";
 import { fetchMessages, sendMessage, type ApiMessage } from "@/lib/chat-api";
@@ -214,21 +218,25 @@ function RoomPage() {
   };
 
 
+  const onlineUsers = Array.from(new Set([nickname, ...messages.map((m) => m.user)]));
+
   return (
     <div className="flex min-h-screen flex-col bg-chat-canvas">
       {/* Top bar */}
-      <header className="sticky top-0 z-20 flex items-center gap-2 bg-card px-2 py-2">
-        <Link to="/" aria-label="رجوع" className="p-1 text-brand-blue">
-          <ChevronRight className="size-7" strokeWidth={3} />
-        </Link>
+      <header className="sticky top-0 z-20 flex items-center gap-2 bg-card px-2 py-2 lg:flex-row-reverse lg:px-4">
+        <div className="flex items-center gap-2 lg:flex-row-reverse">
+          <Link to="/" aria-label="رجوع" className="p-1 text-brand-blue">
+            <ChevronRight className="size-7 lg:rotate-180" strokeWidth={3} />
+          </Link>
 
-        <span className="max-w-[110px] truncate rounded-full bg-secondary px-4 py-2 text-[15px] font-bold text-foreground">
-          {room?.name ?? "غرفة"}
-        </span>
+          <span className="max-w-[110px] truncate rounded-full bg-secondary px-4 py-2 text-[15px] font-bold text-foreground">
+            {room?.name ?? "غرفة"}
+          </span>
+        </div>
 
         <button
           type="button"
-          className="flex items-center gap-2 rounded-full bg-[image:var(--gradient-radio)] py-1 pl-1 pr-3 text-primary-foreground"
+          className="flex items-center gap-2 rounded-full bg-[image:var(--gradient-radio)] py-1 pl-1 pr-3 text-primary-foreground lg:hidden"
         >
           <span className="text-[14px] font-extrabold">راديو دردشتي</span>
           <span className="relative flex size-8 items-center justify-center rounded-full bg-card">
@@ -237,152 +245,255 @@ function RoomPage() {
           </span>
         </button>
 
-        <button
-          type="button"
-          aria-label="الرئيسية"
-          className="flex h-9 w-12 items-center justify-center rounded-lg bg-brand-blue text-brand-blue-foreground"
-        >
-          <Home className="size-5 fill-current" />
-        </button>
-        <button
-          type="button"
-          aria-label="المستخدمون"
-          className="flex h-9 w-12 items-center justify-center rounded-lg bg-brand-blue text-brand-blue-foreground"
-        >
-          <Users className="size-5 fill-current" />
-        </button>
-        <button type="button" aria-label="خيارات" className="p-1 text-foreground">
-          <MoreVertical className="size-5" />
-        </button>
+        <div className="flex items-center gap-2 lg:mr-auto lg:flex-row-reverse lg:gap-4">
+          <button
+            type="button"
+            aria-label="الرئيسية"
+            className="flex h-9 w-12 items-center justify-center rounded-lg bg-brand-blue text-brand-blue-foreground lg:h-auto lg:w-auto lg:bg-transparent lg:text-brand-blue"
+          >
+            <Home className="size-5 fill-current lg:hidden" />
+            <MessageSquare className="hidden size-7 fill-current lg:block" />
+          </button>
+          <button
+            type="button"
+            aria-label="المستخدمون"
+            className="flex h-9 w-12 items-center justify-center rounded-lg bg-brand-blue text-brand-blue-foreground lg:h-auto lg:w-auto lg:bg-transparent lg:text-brand-blue"
+          >
+            <Users className="size-5 fill-current lg:hidden" />
+            <Bell className="hidden size-7 fill-current lg:block" />
+          </button>
+          <button type="button" aria-label="خيارات" className="p-1 text-foreground lg:text-brand-blue">
+            <MoreVertical className="size-5 lg:size-6" />
+          </button>
+        </div>
       </header>
 
-      {/* Live strip */}
-      <div className="relative flex items-center justify-between bg-card px-3 pb-2">
-        <div className="flex flex-col items-center">
-          <div className="size-12 rounded-full bg-[image:var(--gradient-brand)] p-[2px]">
-            <div className="flex size-full items-center justify-center rounded-full bg-card text-xs font-bold text-muted-foreground">
-              LIVE
+      <div className="flex flex-1 flex-col lg:flex-row-reverse lg:items-stretch">
+        <section className="flex min-w-0 flex-1 flex-col">
+          {/* Live strip */}
+          <div className="relative flex items-center justify-between bg-card px-3 pb-2 lg:bg-transparent lg:pt-2">
+            <div className="flex flex-col items-center lg:hidden">
+              <div className="size-12 rounded-full bg-[image:var(--gradient-brand)] p-[2px]">
+                <div className="flex size-full items-center justify-center rounded-full bg-card text-xs font-bold text-muted-foreground">
+                  LIVE
+                </div>
+              </div>
+              <span className="mt-0.5 rounded bg-destructive px-1 text-[9px] font-bold text-primary-foreground">
+                LIVE
+              </span>
+              <span className="max-w-[70px] truncate text-[11px] font-bold text-foreground">(FlawLess)…</span>
+            </div>
+            <div className="hidden items-center gap-2 lg:flex">
+              <span className="flex size-8 items-center justify-center rounded-full bg-brand-blue text-brand-blue-foreground">
+                <Video className="size-4 fill-current" />
+              </span>
+              <span className="text-[14px] font-bold text-foreground">لا أحد في البث المباشر الآن</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5 text-muted-foreground lg:items-center">
+              <Radio className="size-5" />
+              <span className="text-[13px] font-bold">بث مباشر</span>
             </div>
           </div>
-          <span className="mt-0.5 rounded bg-destructive px-1 text-[9px] font-bold text-primary-foreground">
-            LIVE
-          </span>
-          <span className="max-w-[70px] truncate text-[11px] font-bold text-foreground">(FlawLess)…</span>
-        </div>
-        <div className="flex items-center gap-1 text-muted-foreground">
-          <span className="text-[13px] font-bold">بث مباشر</span>
-          <Radio className="size-5" />
-        </div>
-      </div>
 
-      {/* Messages */}
-      <main className="flex-1 space-y-2 px-2 py-3">
-        {messages.map((m) => (
-          <div key={m.id} className="flex items-end gap-2">
-            <button
-              type="button"
-              onClick={() => setSheetUser(m.user)}
-              aria-label={`خيارات ${m.user}`}
-              className="size-11 shrink-0 overflow-hidden rounded-full bg-[image:var(--gradient-brand)]"
-            />
-            <div className="max-w-[78%] rounded-2xl bg-bubble px-3 py-2 shadow-[var(--shadow-card)]">
-              <div className="flex items-center gap-2">
+          {/* Messages */}
+          <main className="flex-1 space-y-2 px-2 py-3 lg:px-4">
+            {messages.map((m) => (
+              <div key={m.id} className="flex items-end gap-2">
                 <button
                   type="button"
                   onClick={() => setSheetUser(m.user)}
-                  className="truncate text-[15px] font-extrabold text-bubble-foreground"
-                >
-                  {m.user}
-                </button>
-                {m.badge && <Badge kind={m.badge} />}
-                <span className="text-[11px] text-muted-foreground">{m.time}</span>
-              </div>
-              {m.quote && (
-                <div className="mt-1 rounded-md border-r-[3px] border-brand-blue bg-quote px-2 py-1">
-                  <p className="text-[13px] font-bold text-bubble-foreground">{m.quote.user}</p>
-                  <p className="text-[13px] text-muted-foreground">{m.quote.text}</p>
-                </div>
-              )}
-              {m.image && (
-                <img
-                  src={m.image}
-                  alt={`صورة أرسلها ${m.user}`}
-                  loading="lazy"
-                  className="mt-1 max-h-60 w-full rounded-xl object-cover"
+                  aria-label={`خيارات ${m.user}`}
+                  className="size-11 shrink-0 overflow-hidden rounded-full bg-[image:var(--gradient-brand)]"
                 />
-              )}
-              {m.text && (
-                <p className={`mt-1 text-[19px] font-bold ${colorClass[m.color]}`}>{m.text}</p>
-              )}
-            </div>
-          </div>
-        ))}
-      </main>
+                <div className="max-w-[78%] rounded-2xl bg-bubble px-3 py-2 shadow-[var(--shadow-card)] lg:max-w-[60%]">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSheetUser(m.user)}
+                      className="truncate text-[15px] font-extrabold text-bubble-foreground"
+                    >
+                      {m.user}
+                    </button>
+                    {m.badge && <Badge kind={m.badge} />}
+                    <span className="text-[11px] text-muted-foreground">{m.time}</span>
+                  </div>
+                  {m.quote && (
+                    <div className="mt-1 rounded-md border-r-[3px] border-brand-blue bg-quote px-2 py-1">
+                      <p className="text-[13px] font-bold text-bubble-foreground">{m.quote.user}</p>
+                      <p className="text-[13px] text-muted-foreground">{m.quote.text}</p>
+                    </div>
+                  )}
+                  {m.image && (
+                    <img
+                      src={m.image}
+                      alt={`صورة أرسلها ${m.user}`}
+                      loading="lazy"
+                      className="mt-1 max-h-60 w-full rounded-xl object-cover"
+                    />
+                  )}
+                  {m.text && (
+                    <p className={`mt-1 text-[19px] font-bold ${colorClass[m.color]}`}>{m.text}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </main>
 
-      {/* Emoji picker */}
-      {showEmoji && (
-        <div className="sticky bottom-[112px] z-10 max-h-44 overflow-y-auto border-t border-border bg-card px-2 py-2">
-          <div className="grid grid-cols-8 gap-1">
-            {EMOJIS.map((emo) => (
+          {/* Emoji picker */}
+          {showEmoji && (
+            <div className="sticky bottom-[112px] z-10 max-h-44 overflow-y-auto border-t border-border bg-card px-2 py-2 lg:bottom-[70px]">
+              <div className="grid grid-cols-8 gap-1">
+                {EMOJIS.map((emo) => (
+                  <button
+                    key={emo}
+                    type="button"
+                    onClick={() => setText((t) => t + emo)}
+                    className="rounded-lg py-1 text-2xl hover:bg-secondary"
+                  >
+                    {emo}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Composer */}
+          <form
+            onSubmit={send}
+            className="sticky bottom-[58px] z-10 flex items-center gap-2 bg-card px-2 py-2 lg:bottom-0 lg:flex-wrap lg:gap-3 lg:px-4 lg:py-3"
+          >
+            <button
+              type="button"
+              aria-label="الرموز"
+              onClick={() => setShowEmoji((v) => !v)}
+              className="text-brand-blue"
+            >
+              <Smile className="size-8 fill-brand-blue text-card" />
+            </button>
+            <button type="button" aria-label="المزيد" className="text-brand-blue">
+              <LayoutGrid className="size-6" />
+            </button>
+            <button type="button" aria-label="تسجيل صوتي" className="hidden text-brand-blue lg:block">
+              <Mic className="size-6" />
+            </button>
+            <input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="رسالة عامة"
+              className="h-10 flex-1 rounded-full border border-border bg-card px-4 text-[15px] text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring lg:order-last lg:h-11 lg:w-full lg:flex-none lg:basis-full lg:rounded-lg"
+            />
+            <button type="button" aria-label="تسجيل صوتي" className="text-brand-blue lg:hidden">
+              <Mic className="size-6" />
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={onPickImage}
+              className="hidden"
+            />
+            <button
+              type="button"
+              aria-label="إرسال صورة"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+              className="text-brand-blue disabled:opacity-50"
+            >
+              <Camera className="size-6 fill-brand-blue text-card" />
+            </button>
+            <button
+              type="submit"
+              aria-label="إرسال"
+              className="flex size-9 items-center justify-center rounded-full bg-brand-blue text-brand-blue-foreground lg:order-last lg:size-10"
+            >
+              <ArrowUp className="size-5" strokeWidth={3} />
+            </button>
+          </form>
+        </section>
+
+        {/* Desktop sidebar */}
+        <aside className="hidden w-[280px] shrink-0 flex-col border-r border-border bg-card lg:flex">
+          <div className="flex items-center gap-2 border-b border-border p-2">
+            <span className="size-11 shrink-0 rounded-lg bg-[image:var(--gradient-brand)]" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-extrabold text-foreground">{nickname}</p>
+              <div className="mt-1 flex items-center gap-2 text-[12px] font-bold text-muted-foreground">
+                <span className="rounded bg-secondary px-1.5">🪙 0</span>
+                <Gift className="size-4 text-brand-blue" />
+              </div>
+            </div>
+            <ListFilter className="size-6 shrink-0 text-brand-blue" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 p-2">
+            <button
+              type="button"
+              className="flex items-center justify-center gap-1.5 rounded-md bg-brand-blue py-1.5 text-[13px] font-bold text-brand-blue-foreground"
+            >
+              <Users className="size-4 fill-current" />
+              مستخدمين
+            </button>
+            <Link
+              to="/"
+              className="flex items-center justify-center gap-1.5 rounded-md bg-secondary py-1.5 text-[13px] font-bold text-foreground"
+            >
+              <Home className="size-4 fill-current" />
+              غرف دردشتي
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 px-2">
+            <input
+              placeholder="بحث عن مستخدمين"
+              className="h-8 w-full rounded-md bg-secondary px-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+            />
+            <ListFilter className="size-5 shrink-0 text-brand-blue" />
+          </div>
+
+          <p className="px-3 py-2 text-[13px] font-bold text-foreground">
+            متصل الآن {onlineUsers.length}
+          </p>
+
+          <div className="flex-1 overflow-y-auto">
+            {onlineUsers.map((u) => (
               <button
-                key={emo}
+                key={u}
                 type="button"
-                onClick={() => setText((t) => t + emo)}
-                className="rounded-lg py-1 text-2xl hover:bg-secondary"
+                onClick={() => setSheetUser(u)}
+                className="flex w-full items-center gap-2 border-b border-border px-2 py-2 text-right hover:bg-secondary/60"
               >
-                {emo}
+                <span className="relative size-9 shrink-0 rounded-lg bg-[image:var(--gradient-brand)]">
+                  <span className="absolute -bottom-0.5 right-0 size-2.5 rounded-full border-2 border-card bg-green-500" />
+                </span>
+                <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-foreground">{u}</span>
+                <UserCircle2 className="size-4 shrink-0 text-muted-foreground" />
               </button>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* Composer */}
-      <form onSubmit={send} className="sticky bottom-[58px] z-10 flex items-center gap-2 bg-card px-2 py-2">
-        <button
-          type="button"
-          aria-label="الرموز"
-          onClick={() => setShowEmoji((v) => !v)}
-          className="text-brand-blue"
-        >
-          <Smile className="size-8 fill-brand-blue text-card" />
-        </button>
-        <button type="button" aria-label="المزيد" className="text-brand-blue">
-          <LayoutGrid className="size-6" />
-        </button>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="رسالة عامة"
-          className="h-10 flex-1 rounded-full border border-border bg-card px-4 text-[15px] text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
-        />
-        <button type="button" aria-label="تسجيل صوتي" className="text-brand-blue">
-          <Mic className="size-6" />
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          onChange={onPickImage}
-          className="hidden"
-        />
-        <button
-          type="button"
-          aria-label="إرسال صورة"
-          disabled={uploading}
-          onClick={() => fileRef.current?.click()}
-          className="text-brand-blue disabled:opacity-50"
-        >
-          <Camera className="size-6 fill-brand-blue text-card" />
-        </button>
-        <button
-          type="submit"
-          aria-label="إرسال"
-          className="flex size-9 items-center justify-center rounded-full bg-brand-blue text-brand-blue-foreground"
-        >
-          <ArrowUp className="size-5" strokeWidth={3} />
-        </button>
-      </form>
+          <div className="m-2 rounded-xl bg-[image:var(--gradient-radio)] p-2 text-primary-foreground">
+            <p className="text-left text-[14px] font-extrabold">راديو دردشتي</p>
+            <div className="mt-1 flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="إيقاف"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card/30"
+              >
+                <Pause className="size-4 fill-current" />
+              </button>
+              <Volume2 className="size-4 shrink-0" />
+              <input
+                type="range"
+                aria-label="مستوى الصوت"
+                defaultValue={100}
+                className="h-1 w-full accent-primary-foreground"
+              />
+              <span className="shrink-0 text-[11px] font-bold">100%</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+
 
       {/* User action sheet */}
       {sheetUser && (
@@ -462,7 +573,7 @@ function RoomPage() {
 
 
       {/* Bottom tabs */}
-      <nav className="sticky bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5">
+      <nav className="sticky bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5 lg:hidden">
         <Link to="/" className="flex flex-col items-center gap-0.5 text-brand-blue">
           <Home className="size-6 fill-current" />
           <span className="text-[12px] font-bold">الغرف</span>
