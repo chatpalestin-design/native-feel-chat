@@ -24,6 +24,10 @@ import {
   LogOut,
   Smile,
   Users,
+  Video,
+  ListFilter,
+  Pause,
+  Volume2,
 } from "lucide-react";
 import { getRoom } from "@/data/rooms";
 import { fetchMessages, sendMessage, type ApiMessage } from "@/lib/chat-api";
