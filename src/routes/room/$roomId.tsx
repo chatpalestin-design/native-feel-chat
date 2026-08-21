@@ -32,6 +32,7 @@ import {
 import { getRoom } from "@/data/rooms";
 import { fetchMessages, sendMessage, type ApiMessage } from "@/lib/chat-api";
 import { supabase } from "@/integrations/supabase/client";
+import { MenuPanel, NotificationsPanel, PrivatePanel } from "@/components/MobilePanels";
 
 const EMOJIS = [
   "😀","😁","😂","🤣","😊","😍","😘","😎","🤩","🥳",
@@ -149,6 +150,7 @@ function RoomPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [sheetUser, setSheetUser] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [tab, setTab] = useState<"rooms" | "private" | "notifications" | "menu">("rooms");
 
 
   useEffect(() => {
@@ -572,27 +574,62 @@ function RoomPage() {
       )}
 
 
+      {tab === "private" && <PrivatePanel onBack={() => setTab("rooms")} />}
+      {tab === "notifications" && <NotificationsPanel onBack={() => setTab("rooms")} />}
+      {tab === "menu" && (
+        <MenuPanel
+          onBack={() => setTab("rooms")}
+          nickname={nickname}
+          onLogout={() => {
+            window.localStorage.removeItem("chat-nickname");
+            window.localStorage.removeItem("chat-gender");
+            window.location.href = "/";
+          }}
+          onPick={() => undefined}
+        />
+      )}
+
       {/* Bottom tabs */}
-      <nav className="sticky bottom-0 z-20 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5 lg:hidden">
-        <Link to="/" className="flex flex-col items-center gap-0.5 text-brand-blue">
+      <nav className="sticky bottom-0 z-40 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setTab("rooms")}
+          className={`flex flex-col items-center gap-0.5 ${
+            tab === "rooms" ? "text-brand-blue" : "text-muted-foreground"
+          }`}
+        >
           <Home className="size-6 fill-current" />
           <span className="text-[12px] font-bold">الغرف</span>
-        </Link>
-        <button type="button" className="relative flex flex-col items-center gap-0.5 text-muted-foreground">
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("private")}
+          className={`relative flex flex-col items-center gap-0.5 ${
+            tab === "private" ? "text-brand-blue" : "text-muted-foreground"
+          }`}
+        >
           <MessageSquare className="size-6 fill-current" />
           <span className="absolute -top-1 right-[22%] flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-primary-foreground">
             1
           </span>
           <span className="text-[12px] font-bold">الخاص</span>
         </button>
-        <button type="button" className="flex flex-col items-center gap-0.5 text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setTab("notifications")}
+          className={`flex flex-col items-center gap-0.5 ${
+            tab === "notifications" ? "text-brand-blue" : "text-muted-foreground"
+          }`}
+        >
           <Bell className="size-6" />
           <span className="text-[12px] font-bold">الإشعارات</span>
         </button>
         <button
           type="button"
-          onClick={() => setShowMenu(true)}
-          className="flex flex-col items-center gap-0.5 text-muted-foreground"
+          onClick={() => setTab("menu")}
+          className={`flex flex-col items-center gap-0.5 ${
+            tab === "menu" ? "text-brand-blue" : "text-muted-foreground"
+          }`}
         >
           <span className="flex size-6 items-center justify-center rounded-md bg-[image:var(--gradient-brand)] text-[11px] font-black text-primary-foreground">
             د

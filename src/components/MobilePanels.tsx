@@ -29,7 +29,7 @@ function PanelShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-secondary lg:hidden">
+    <div className="fixed inset-x-0 top-0 bottom-[56px] z-30 flex flex-col bg-secondary lg:hidden">
       <header className="relative flex h-12 shrink-0 items-center justify-center border-b border-border bg-card px-3">
         <button
           type="button"
