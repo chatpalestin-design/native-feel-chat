@@ -591,8 +591,8 @@ function RoomPage() {
 
       {/* Bottom tabs */}
       <nav className="sticky bottom-0 z-40 grid grid-cols-4 border-t border-border bg-card pb-1 pt-1.5 lg:hidden">
-        <Link
-          to="/"
+        <button
+          type="button"
           onClick={() => setTab("rooms")}
           className={`flex flex-col items-center gap-0.5 ${
             tab === "rooms" ? "text-brand-blue" : "text-muted-foreground"
