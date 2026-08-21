@@ -600,7 +600,7 @@ function RoomPage() {
         >
           <Home className="size-6 fill-current" />
           <span className="text-[12px] font-bold">الغرف</span>
-        </Link>
+        </button>
         <button
           type="button"
           onClick={() => setTab("private")}
