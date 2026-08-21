@@ -32,6 +32,7 @@ import {
 import { getRoom } from "@/data/rooms";
 import { fetchMessages, sendMessage, type ApiMessage } from "@/lib/chat-api";
 import { supabase } from "@/integrations/supabase/client";
+import { MenuPanel, NotificationsPanel, PrivatePanel } from "@/components/MobilePanels";
 
 const EMOJIS = [
   "😀","😁","😂","🤣","😊","😍","😘","😎","🤩","🥳",
