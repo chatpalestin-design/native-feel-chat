@@ -150,6 +150,7 @@ function RoomPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [sheetUser, setSheetUser] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [tab, setTab] = useState<"rooms" | "private" | "notifications" | "menu">("rooms");
 
 
   useEffect(() => {
